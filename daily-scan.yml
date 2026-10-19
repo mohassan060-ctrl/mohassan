@@ -1,0 +1,22 @@
+name: Daily public job scan
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '15 5 * * *'
+permissions:
+  contents: read
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - run: python engine.py --output jobs.csv
+      - uses: actions/upload-artifact@v4
+        with:
+          name: jobs-${{ github.run_number }}
+          path: jobs.csv
+          retention-days: 14
